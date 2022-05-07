@@ -33,20 +33,21 @@ def py_p3d_SITK_Median_16(img, dimx,dimy,dimz, kWidth = 1):
 
 
 
+###### sitk_WatershedSegmentation
 ###### sitk_WatershedSegmentation_16
 def py_p3d_WatershedSegmentation(dist_file_path, watershed_image_path, dimx, dimy, dimz = 0, level = 0, markWatershedLine = True, connected = False): 
 	"""
 	Syntax:
 	------
-	Result = py_p3d_HMinimaFilter ( input_image, dimx, dimy[, dimz = 0 ] [, threshold =value ])
+	Result = py_p3d_WatershedSegmentation ( dist_file_path, watershed_image_path, dimx, dimy [, dimz = value] [, level = value] [, markWatershedLine = value] [, connected = value])
   
 	Return Value:
 	------------
-	Returns the H-minima transformed image with the same dimensions and type of input image.                 
+	Returns the H-py_p3d_WatershedSegmentation transformed image with the same dimensions and type of input image.                 
   
 	Arguments:
 	---------
-	dist_file_path: File path storing A 2D or 3D matrix of type BYTE representing the input image. Usually it is a distance field image
+	dist_file_path: File path storing A 2D or 3D matrix representing the input image. Usually it is a distance field image
  
 	dimx,dimy,dimz: three variables representing the dimensions of image to read. 
   
@@ -56,9 +57,7 @@ def py_p3d_WatershedSegmentation(dist_file_path, watershed_image_path, dimx, dim
   
 	watershed_image_path: the path where the output image is written
 	""" 
-	#input_image =  p3d_to_sitk_file_format_16(input_image, dimx,dimy,dimz)
 	dist_img = Read_Raw16(dist_file_path, [dimx,dimy,dimz])
-	#binary_img = Read_Raw8(binary_image_path, [dimx,dimy,dimz])
 
 	Filter = sitk.MorphologicalWatershedImageFilter() 
 	Filter.SetFullyConnected(connected)
@@ -66,18 +65,8 @@ def py_p3d_WatershedSegmentation(dist_file_path, watershed_image_path, dimx, dim
 	Filter.SetMarkWatershedLine(markWatershedLine)
 	WS_Img = Filter.Execute(dist_img)
     
-	#feature_img = sitk.GradientMagnitudeRecursiveGaussian(dist_img, sigma=1.5)
-	#sitk.WriteImage(feature_img,'/home/amal.abouelhassan/pore3d_py_final/p3d_examples/Data/Output/feature.mhd')
-	#min_img = sitk.RegionalMinima(feature_img, backgroundValue=0, foregroundValue=1.0, fullyConnected=False, flatIsMinima=True)
-	#marker_img = sitk.ConnectedComponent(min_img)
-	#Img = sitk.MorphologicalWatershedFromMarkers(dist_img, WS_Img, markWatershedLine=True, fullyConnected=False)    
-
-	#outImg = apply_rescaler(Img, dimx,dimy,dimz)
-	#Img = sitk_to_p3d_file_format_16(Img, dimx,dimy,dimz)
-
 	out_file = watershed_image_path + '.mhd'
 	sitk.WriteImage(WS_Img,out_file)
-	#os.remove(out_file)
 	return WS_Img
 
 
