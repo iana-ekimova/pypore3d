@@ -74,7 +74,6 @@ def py_p3dWriteRaw8(image_data, filename, dimx, dimy, dimz = 0):
 		py_printErrorMessage(-3)
 		return
     
-	#image_data = dmalloc_uchar(dimx*dimy*dimz)
 	err_code = p3dWriteRaw8(image_data, filename,dimx,dimy,dimz, None, None);
 	py_printErrorMessage(err_code)
 	return image_data

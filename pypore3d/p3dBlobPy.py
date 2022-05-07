@@ -412,6 +412,8 @@ def py_p3dMinVolumeFilter3D(image_data, dimx, dimy, dimz = 0, min_vol = 5, conn 
   image_data: A 2D or 3D matrix of type BYTE  representing the input image to write to disk.
  
   dimx,dimy,dimz: three variables representing the dimensions of image to read. 
+  
+  min_vol: All connected components having volume (i.e. number of voxels) below this value will be removed (default = 5).
  
   conn: Specify the desired connectivity: 6 (default), 18 or 26.
  
@@ -438,13 +440,13 @@ def py_p3dMinVolumeFilter3D(image_data, dimx, dimy, dimz = 0, min_vol = 5, conn 
 
 
 # Blob Analysis
-def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0):
+def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0, blob_im = None, star_im = None, resolution = 1.0, conn = 6, blob_analysis_file = "blob_analysis.txt"):
 	"""
   Performs a series of direct 3D analysis suitable for porous media having isolated pores. If the pore space is formed by an  isolated set of “blobs” (connected components), a series of descriptors for size and shape of each “blob” can be computed. The  analysis is based on the concept of connected com- ponents and their labeling (see py_p3dBlobLabeling_8).
   
   Syntax:
   ------
-  Result = py_p3dBlobAnalysis ( image_data, dimx, dimy [, dimz = value] [, blob_im = bytearray] [, star_im = bytearray] [, resolution =  value] [, conn = value])
+  Result = py_p3dBlobAnalysis ( image_data, dimx, dimy [, dimz = value] [, blob_im = bytearray] [, star_im = bytearray] [, resolution =  value] [, conn = value,] [blob_analysis_file = value])
   
   Return Value:
   ------------
@@ -481,6 +483,8 @@ def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0):
   resolution: A decimal value representing the voxel size of input image. If this value is not specified a voxelsize of 1.0 is  assumed that means output values are expressed in voxel unit.
  
   conn: Specify the desired connectivity: 6 (default), 18 or 26.
+  
+  blob_analysis_file: tab-delimeted file where the results of the blob statiscs are saved. If no name is specified, the file will be saved under the name "blob_analysis.txt" in the default folder location. 
  
   Remarks:
   ---------
@@ -507,26 +511,10 @@ def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0):
 		borders = P3D_FALSE;
 	else :
 		borders = P3D_TRUE;
-	print (resolution,",",conn,",",max_rot,",",borders)
-	#blob_im = malloc_uchar(dimx*dimy*dimz)
-	#star_im = malloc_uchar(dimx*dimy*dimz)
-	#err_code = p3dBlobAnalysis(image_data, out_BlobStat, blob_im, star_im, 700,700,700,0.0026 , 713 , 1024 , -1, None)
 	err_code = p3dBlobAnalysis(image_data, out_BlobStat, blob_im, star_im, dimx,dimy,dimz,resolution,conn,max_rot,borders, None)
 	py_printErrorMessage(err_code)
+	PrintBlobStruct(out_BlobStat, blob_analysis_file)
 	return out_BlobStat
 
-
-# p3dREVEstimation
-#def py_p3dREVEstimation(image_data, dimx, dimy, dimz = 0, blob_im = None, star_im = None, resolution = 1.0, conn = 6):
-#	if dimx == 0 or dimy == 0:
-#		py_printErrorMessage(-3)
-#		return
-#	rev_porosity  = None#malloc_doub(dimx*dimy*dimz)
-#	rev_sizes  = None#malloc_ushort(dimx*dimy*dimz)
-#	num_el = malloc_ushort(1)
-#	stepsize  = 1
-#	err_code = p3dREVEstimation(image_data,rev_porosity,rev_sizes,num_el,dimx,dimy,dimz,stepsize,dimx/2,dimy/2,dimz/2,None)
-#	print ("Pores number =", num_el)
-#	return rev_porosity
     
     

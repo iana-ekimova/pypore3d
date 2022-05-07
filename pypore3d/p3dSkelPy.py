@@ -124,7 +124,7 @@ def py_p3dLKCSkeletonization(image_data, dimx, dimy, dimz = 0):
 	py_printErrorMessage(err_code)
 	return out_image
 
-def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dimy, dimz = 0, nodes_im = None, pores_im= None, ends_im= None, throats_im= None, merging_factor= 0.85, tortuosity_depth= 3, resolution= 1.0):
+def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dimy, dimz = 0, nodes_im = None, pores_im= None, ends_im= None, throats_im= None, merging_factor= 0.85, tortuosity_depth= 3, resolution= 1.0, skel_stats_file = "skeleton_stats.txt"):
 	"""
   Performs a series of analysis on the input volume based on its skeleton.
  
@@ -134,7 +134,7 @@ def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dim
   
   Syntax:
   ------
-  Result = p3dSkeletonAnalysis ( image_data, skeleton_image, dimx, dimy [, dimz = value] [, nodes_im=bytearray] [, pores_im=bytearray] [,  throats_im=bytearray] [, pores_im=bytearray][, merging_factor=value] [, tortuosity_depth=value] [, resolution=value]  )
+  Result = p3dSkeletonAnalysis ( image_data, skeleton_image, dimx, dimy [, dimz = value] [, nodes_im=bytearray] [, pores_im=bytearray] [,  throats_im=bytearray] [, pores_im=bytearray][, merging_factor=value] [, tortuosity_depth=value] [, resolution=value,] [skel_stats_file = value] )
   
   Return Value:
   ------------
@@ -200,6 +200,8 @@ def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dim
   merging_factor: A decimal value in the range [0.0,1.0] for reducing the size of the maximal balls to use for merging adjacent  nodes (default 0.85). If the value 1.0 is specified too many skeleton nodes might be merged leading to inaccurate results. On  the other hand, if a too small value is specified, spurious branches might be considered.
  
   resolution: A decimal value representing the resolution of input image. If this value is not specified a voxelsize of 1.0 is  assumed that means output values are expressed in voxel unit.
+  
+  skel_stats_file: tab_delimeted/categorized file where output statistics are written. If no file address is specifed, the statustics will be saved in the default folder under the name "skeleton_stats.txt"
  
   Remarks:
   -------
@@ -214,11 +216,11 @@ def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dim
 		py_printErrorMessage(-3)
 		return
 
-	out_skeleton_stats = BlobStats()
-	#out_image = malloc_uchar(dimx*dimy*dimz)
+	skeleton_stats = PSkeletonStats()
 	err_code=p3dSkeletonAnalysis(image_data,skeleton_image,skeleton_stats,nodes_im,pores_im,ends_im,throats_im,dimx,dimy,dimz,merging_factor,tortuosity_depth, resolution,None)
 	py_printErrorMessage(err_code)
-	return out_BlobStat
+	PrintSkelStruct(skeleton_stats, skel_stats_file)
+	return out_skeleton_stats
 
     
 def py_p3dSkeletonPruning(image_data, dimx, dimy, dimz = 0, thresh=3, ultimate = False, iterative = False):
