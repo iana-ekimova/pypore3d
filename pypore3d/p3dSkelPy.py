@@ -124,7 +124,7 @@ def py_p3dLKCSkeletonization(image_data, dimx, dimy, dimz = 0):
 	py_printErrorMessage(err_code)
 	return out_image
 
-def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dimy, dimz = 0, nodes_im = None, pores_im= None, ends_im= None, throats_im= None, merging_factor= 0.85, tortuosity_depth= 3, resolution= 1.0, skel_stats_file = "skeleton_stats.txt"):
+def py_p3dSkeletonAnalysis(image_data, skeleton_image, dimx, dimy, dimz = 0, nodes_im = None, pores_im= None, ends_im= None, throats_im= None, merging_factor= 0.85, tortuosity_depth= 3, resolution= 1.0, skel_stats_file = "skeleton_stats.txt"):
 	"""
   Performs a series of analysis on the input volume based on its skeleton.
  
@@ -216,11 +216,11 @@ def py_p3dSkeletonAnalysis(image_data, skeleton_image, skeleton_stats, dimx, dim
 		py_printErrorMessage(-3)
 		return
 
-	skeleton_stats = PSkeletonStats()
+	skeleton_stats = malloc_PSkeletonStats()
 	err_code=p3dSkeletonAnalysis(image_data,skeleton_image,skeleton_stats,nodes_im,pores_im,ends_im,throats_im,dimx,dimy,dimz,merging_factor,tortuosity_depth, resolution,None)
 	py_printErrorMessage(err_code)
 	PrintSkelStruct(skeleton_stats, skel_stats_file)
-	return out_skeleton_stats
+	return skeleton_stats
 
     
 def py_p3dSkeletonPruning(image_data, dimx, dimy, dimz = 0, thresh=3, ultimate = False, iterative = False):

@@ -103,7 +103,7 @@ def py_p3dAnisotropyAnalysis(image_data, dimx, dimy, dimz = 0, resolution = 1.0)
 	out_AnisotropyStats = AnisotropyStats()
 	im_dummy_mask = malloc_uchar(dimx*dimy*dimz)
 	im_dummy_mask = image_data
-	details = false
+	details = False
 	err_code = p3dAnisotropyAnalysis(image_data, None, out_AnisotropyStats, dimx, dimy, dimz, resolution, details , None)
 	py_printErrorMessage(err_code)
 	return out_AnisotropyStats
@@ -356,8 +356,8 @@ def py_p3dMorphometricAnalysis(image_data, dimx, dimy, dimz, resolution = 1.0):
 		return
 
 	out_MorphometricStat = MorphometricStats()
-	mask_image = malloc_uchar(dimx*dimy*dimz)
-	err_code = p3dMorphometricAnalysis(image_data, mask_image, out_MorphometricStat, dimx,dimy,dimz, resolution, None)
+	#mask_image = malloc_uchar(dimx*dimy*dimz)
+	err_code = p3dMorphometricAnalysis(image_data, None, out_MorphometricStat, dimx,dimy,dimz, resolution, None)
 	py_printErrorMessage(err_code)
 	return out_MorphometricStat
 
