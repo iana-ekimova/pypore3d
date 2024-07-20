@@ -18,152 +18,6 @@
 #include "Common/p3dConnectedComponentsLabeling.h"
 #include "Common/p3dUtils.h"
 
-int p3dWriteRaw8_local(
-	unsigned char* in_im,
-	char* filename,
-	const int dimx,
-	const int dimy,
-	const int dimz,
-	int (*wr_log)(const char*, ...),
-	int (*wr_progress)(const int, ...)
-	) 
-{
-	FILE* fvol;
-
-	// Start tracking computational time:
-	if (wr_log != NULL) {
-		p3dResetStartTime();
-		wr_log("Pore3D - Writing 8-bit RAW file %s ...", filename);
-	}
-
-	/* Get a handler for the input file */
-	if ((fvol = fopen(filename, "wb")) == NULL) {
-		wr_log("Pore3D - IO error: cannot open output file %s. Program will exit.", filename);
-
-		return 0;
-	}
-
-	/* Write raw data to file: */
-	if (fwrite(in_im, sizeof (unsigned char), dimx * dimy * dimz, fvol) < (dimx * dimy * dimz)) {
-		wr_log("Pore3D - IO error: error on writing file %s. Program will exit.", filename);
-
-		return 0;
-	}
-
-	/* Close file handler: */
-	fclose(fvol);
-
-	// Print elapsed time (if required):
-	if (wr_log != NULL) {
-		wr_log("Pore3D - RAW file written successfully in %dm%0.3fs.", p3dGetElapsedTime_min(), p3dGetElapsedTime_sec()) ;
-	}
-
-
-	// Return OK:
-	return P3D_SUCCESS;
-}
-
-
-int p3dWriteRaw32_local(
-	unsigned int* in_im,
-	char* filename,
-	const int dimx,
-	const int dimy,
-	const int dimz,
-	const int flagLittle,
-	const int flagSigned,
-	int (*wr_log)(const char*, ...),
-	int (*wr_progress)(const int, ...)
-	) 
-{
-	FILE* fvol;
-	int* s_tmp_im = NULL;
-	unsigned int* us_tmp_im = NULL;
-	int ct;
-
-	// Start tracking computational time:
-	
-	if (wr_log != NULL) {
-		p3dResetStartTime();
-		wr_log("Pore3D - Writing unsigned integer 32-bit RAW file %s ...", filename);
-		if (flagSigned == P3D_TRUE)
-			wr_log("\tSigned/Unsigned: Signed.");
-		else
-			wr_log("\tSigned/Unsigned: Unsigned.");
-		if (flagLittle == P3D_TRUE)
-			wr_log("\tLittle/Big Endian: Little.");
-		else
-			wr_log("\tLittle/Big Endian: Big.");
-	}
-
-	/* Get a handler for the input file */
-	if ((fvol = fopen(filename, "wb")) == NULL) {
-		wr_log("Pore3D - IO error: cannot open output file %s. Program will exit.", filename);
-		in_im = NULL;
-
-		return 0;
-	}
-
-	/* Read data signed/unsigned: */
-	if (flagSigned == P3D_TRUE) {
-		s_tmp_im = (int*) malloc(dimx * dimy * dimz * sizeof (int));
-
-		/* Convert to signed: */
-		for (ct = 0; ct < (dimx * dimy * dimz); ct++) {
-			if (flagLittle == P3D_FALSE) 
-			{
-				//s_tmp_im[ct] = _EndianSwapInt((int) (in_im[ct] - UINT_MAX / 2));
-			} 
-			else 
-			{
-				s_tmp_im[ct] = (int) (in_im[ct] - UINT_MAX / 2);
-			}
-		}
-
-		/* Write raw data to file: */
-		//fwrite(s_tmp_im, sizeof (short), dimx*dimy, fvol);
-		if (fwrite(s_tmp_im, sizeof (int), dimx * dimy * dimz, fvol) < (dimx * dimy * dimz)) {
-			wr_log("Pore3D - IO error: error on writing file %s. Program will exit.", filename);
-
-			return 0;
-		}
-
-		/* Free: */
-		free(s_tmp_im);
-	} else {
-		/* Swap endian if necessary: */
-		if (flagLittle == P3D_FALSE) {
-			us_tmp_im = (unsigned int*) malloc(dimx * dimy * dimz * sizeof (unsigned int));
-
-			for (ct = 0; ct < (dimx * dimy * dimz); ct++) {
-				//us_tmp_im[ct] = _EndianSwapUnsignedInt(in_im[ct]);
-			}
-
-			//fwrite(us_tmp_im, sizeof (unsigned short), dimx*dimy, fvol);
-			if (fwrite(us_tmp_im, sizeof (unsigned int), dimx * dimy * dimz, fvol) < (dimx * dimy * dimz)) {
-				wr_log("Pore3D - IO error: error on writing file %s. Program will exit.", filename);
-
-				return 0;
-			}
-
-			free(us_tmp_im);
-		} else {
-			fwrite(in_im, sizeof (unsigned int), dimx * dimy * dimz, fvol);
-		}
-	}
-
-	/* Close file handler: */
-	fclose(fvol);
-
-	// Print elapsed time (if required):
-	if (wr_log != NULL) {
-		wr_log("Pore3D - RAW file written successfully in %dm%0.3fs.", p3dGetElapsedTime_min(), p3dGetElapsedTime_sec());
-	}
-
-	return P3D_SUCCESS;
-}
-
-
 void _drawline(unsigned char* in_im,
         unsigned int* lbl_im,
         unsigned int curr_lbl,
@@ -210,7 +64,7 @@ void _drawline(unsigned char* in_im,
         normr_1 = r_1 / r_2;
     }
 
-    // Make sure signs are correct:
+    // Make sure signs are correct:		
     normr_0 = (r_0 > 0) ? fabs(normr_0) : (-fabs(normr_0));
     normr_1 = (r_1 > 0) ? fabs(normr_1) : (-fabs(normr_1));
     normr_2 = (r_2 > 0) ? fabs(normr_2) : (-fabs(normr_2));
@@ -229,10 +83,10 @@ void _drawline(unsigned char* in_im,
     prec_y = y;
     prec_z = z;
 
-    // Explore the incremental and decremental sides while edges of
+    // Explore the incremental and decremental sides while edges of 
     // VOI are reached:
 
-    // Explore the incremental and decremental sides while edges of
+    // Explore the incremental and decremental sides while edges of 
     // mask are reached of image edges are reached:
 
     // Explore the incremental versus while edges of VOI are reached:
@@ -320,13 +174,11 @@ int p3dBlobAnalysis(
         const int conn,
         const int max_rot,
         const int skip_borders,
-        //const bool isSaveBlobs,
-        const int isSaveBlobs,
         int (*wr_log)(const char*, ...)
-        ) {
+        ) {	
 
     unsigned int* dt_im;
-    unsigned int* lbl_im; 
+    unsigned int* lbl_im;
     int i, j, k;
     int a, b, c;
     int dist_x, dist_y, dist_z;
@@ -373,9 +225,7 @@ int p3dBlobAnalysis(
     unsigned char prec_status, curr_status;
     unsigned int iseed;
 	time_t t;
-
-     //unsigned char* centroid_im; 
-
+	
     // Start tracking computational time:
     if (wr_log != NULL) {
         p3dResetStartTime();
@@ -404,19 +254,17 @@ int p3dBlobAnalysis(
     // Get connected components labeled image and allocate memory for related image:
     P3D_MEM_TRY(lbl_im = (unsigned int*) malloc(dimx * dimy * dimz * sizeof (unsigned int)));
 	P3D_TRY(p3dConnectedComponentsLabeling_uint(in_im, lbl_im, &num_el, &volumes, &bbs,
-            dimx, dimy, dimz, conn, P3D_FALSE, skip_borders));
+            dimx, dimy, dimz, conn, P3D_FALSE, skip_borders));	
 
-    //if (blob_im == NULL) { // amal
+    if (blob_im == NULL) {
         free_flag = P3D_TRUE;
         P3D_MEM_TRY(blob_im = (unsigned char*) calloc(dimx * dimy * dimz, sizeof (unsigned char)));
-        //P3D_MEM_TRY(centroid_im = (unsigned char*) calloc(dimx * dimy * dimz, sizeof (unsigned char)));
-        
-    //}
+    }
 
 	if (wr_log != NULL) {
         wr_log("\tBlob labeling successfully performed.");
 	}
-
+	
 
     // Allocate memory for output stats:
     out_stats->blobCount = num_el;
@@ -430,10 +278,6 @@ int p3dBlobAnalysis(
         out_stats->l_min = (double*) malloc(num_el * sizeof (double));
         out_stats->l_max = (double*) malloc(num_el * sizeof (double));
         out_stats->sphericity = (double*) malloc(num_el * sizeof (double));
-        out_stats->Centroid_x = (double*)malloc(num_el * sizeof(double));
-        out_stats->Centroid_y = (double*)malloc(num_el * sizeof(double));
-        out_stats->Centroid_z = (double*)malloc(num_el * sizeof(double));
-
 
         rot_theta = (double*) malloc(max_rot * sizeof (double));
         rot_phi = (double*) malloc(max_rot * sizeof (double));
@@ -448,9 +292,6 @@ int p3dBlobAnalysis(
         out_stats->l_min = NULL;
         out_stats->l_max = NULL;
         out_stats->sphericity = NULL;
-        out_stats->Centroid_x = NULL;
-        out_stats->Centroid_y = NULL;
-        out_stats->Centroid_z = NULL;
     }
 
 
@@ -478,9 +319,8 @@ int p3dBlobAnalysis(
         // Init counters:
         max_sph = 0;
 
-
         ///
-        /// Apply the "star" algorithm in order to get the minimum
+        /// Apply the "star" algorithm in order to get the minimum 
         /// and maximum axis length:
         ///
 
@@ -512,7 +352,7 @@ int p3dBlobAnalysis(
 		srand(iseed);
 
         // For each of the max_rot direction computed:
-        for (ct_rot = 0; ct_rot < max_rot; ct_rot++)
+        for (ct_rot = 0; ct_rot < max_rot; ct_rot++) 
 		{
             rot_theta[ct_rot] = (rand() / ((double) RAND_MAX + 1)) * M_PI;
             rot_phi[ct_rot] = (rand() / ((double) RAND_MAX + 1)) * M_PI;
@@ -541,7 +381,7 @@ int p3dBlobAnalysis(
                 normr_1 = r_1 / r_2;
             }
 
-            // Make sure signs are correct:
+            // Make sure signs are correct:		
             normr_0 = (r_0 > 0) ? fabs(normr_0) : (-fabs(normr_0));
             normr_1 = (r_1 > 0) ? fabs(normr_1) : (-fabs(normr_1));
             normr_2 = (r_2 > 0) ? fabs(normr_2) : (-fabs(normr_2));
@@ -549,7 +389,7 @@ int p3dBlobAnalysis(
             x = cen_i;
             y = cen_j;
             z = cen_k;
-
+			
 
             // Reset status:
             prec_status = in_im[ I((int) (x + 0.5), (int) (y + 0.5), (int) (z + 0.5), dimx, dimy) ];
@@ -560,10 +400,10 @@ int p3dBlobAnalysis(
             prec_y = y;
             prec_z = z;
 
-            // Explore the incremental and decremental sides while edges of
+            // Explore the incremental and decremental sides while edges of 
             // VOI are reached:
 
-            // Explore the incremental and decremental sides while edges of
+            // Explore the incremental and decremental sides while edges of 
             // mask are reached of image edges are reached:
 
             // Explore the incremental versus while edges of VOI are reached:
@@ -648,29 +488,7 @@ int p3dBlobAnalysis(
 
         // ------------------------------------------------------------
 
-        // Calculate the Centroid:
-        double total_x = 0.0, total_y = 0.0, total_z = 0.0;
-        double num_voxels = 0.0;
-        for (k = curr_bb.min_z; k <= curr_bb.max_z; k++) {
-            for (j = curr_bb.min_y; j <= curr_bb.max_y; j++) {
-                for (i = curr_bb.min_x; i <= curr_bb.max_x; i++) {
-                    if (lbl_im[I(i, j, k, dimx, dimy)] == curr_lbl) {
-                        total_x += i;
-                        total_y += j;
-                        total_z += k;
-                        num_voxels += 1.0;
-                    }
-                }
-            }
-        }
-
-        out_stats->Centroid_x[ct] = total_x / num_voxels;
-        out_stats->Centroid_y[ct] = total_y / num_voxels;
-        out_stats->Centroid_z[ct] = total_z / num_voxels;
-
-        //centroid_im[I((int)out_stats->Centroid_x[ct], (int)out_stats->Centroid_y[ct], (int)out_stats->Centroid_z[ct], dimx, dimy)] =  255;
-        
-        // Extract minimum and maximum length from the array
+        // Extract minimum and maximum length from the array 
         // of all the considered lengths:
         l_max = 0.0;
         max_idx = 0;
@@ -728,7 +546,7 @@ int p3dBlobAnalysis(
         rad = (int) (sqrt((double) max_sph));
 
         // Fill the ball (if required as output):
-        //if (free_flag == P3D_FALSE) { //amal
+        if (free_flag == P3D_FALSE) {
             for (c = (max_k - rad); c <= (max_k + rad); c++)
                 for (b = (max_j - rad); b <= (max_j + rad); b++)
                     for (a = (max_i - rad); a <= (max_i + rad); a++) {
@@ -743,7 +561,7 @@ int p3dBlobAnalysis(
                             blob_im [ I(a, b, c, dimx, dimy) ] = OBJECT;
                         }
                     }
-        //}
+        }
 
         //printf("ct: %d - i: %d - j: %d - k: %d - rad: %d\n",ct,max_i,max_j,max_k,rad);
 
@@ -751,7 +569,7 @@ int p3dBlobAnalysis(
 
 
         ///
-        /// Volume:
+        /// Volume:		
         ///
         out_stats->volume[ct] = volumes[ct]*(voxelsize * voxelsize * voxelsize);
 
@@ -763,7 +581,7 @@ int p3dBlobAnalysis(
         }
 
         ///
-        /// Diameter of the maximum inscribed sphere:
+        /// Diameter of the maximum inscribed sphere:		
         ///
         if (max_sph != 0) {
             out_stats->max_sph[ct] = 2.0 * sqrt((double) max_sph) * voxelsize;
@@ -785,8 +603,8 @@ int p3dBlobAnalysis(
 
         ///
         /// Extent parameter, i.e. the ratio between the volume of the
-        /// blob and the volume of the minimum bounding box (the
-        /// smallest parallelepiped oriented according to image axis
+        /// blob and the volume of the minimum bounding box (the 
+        /// smallest parallelepiped oriented according to image axis 
         /// containing the blob).
         ///
         bb_vol = ((double) dist_x) * ((double) dist_y) * ((double) dist_z);
@@ -794,7 +612,7 @@ int p3dBlobAnalysis(
             out_stats->extent[ct] = volumes[ct] / bb_vol;
         else
             out_stats->extent[ct] = 0.0;
-
+            
 
     }
 
@@ -908,18 +726,8 @@ int p3dBlobAnalysis(
         wr_log("Pore3D - Blob analysis performed successfully in %dm%0.3fs.", p3dGetElapsedTime_min(), p3dGetElapsedTime_sec());
     }
 
-	if (isSaveBlobs>0)
-    {
-        p3dWriteRaw8_local(blob_im, "eq_circle_img.raw", dimx, dimy,dimz,NULL,NULL);
-	    p3dWriteRaw32_local(lbl_im, "label_img_32.raw", dimx, dimy,dimz,0,0,NULL,NULL);
-        
-    }
-        
-    //p3dWriteRaw8_local(centroid_im, "centroid_im.raw", dimx, dimy,dimz,0,0,NULL,NULL);
-
-    //free(centroid_im);
-    // Release resources:
-    if (free_flag == P3D_TRUE) free(blob_im); //amal
+    // Release resources:   
+    if (free_flag == P3D_TRUE) free(blob_im);
     if (dt_im != NULL) free(dt_im);
     if (lbl_im != NULL) free(lbl_im);
     if (volumes != NULL) free(volumes);
@@ -939,8 +747,8 @@ MEM_ERROR:
         wr_log("Pore3D - Not enough (contiguous) memory or maximum number of blobs reached. Program will exit.");
     }
 
-    // Release resources:
- //   if (free_flag == P3D_TRUE) free(blob_im); //amal
+    // Release resources:    
+    if (free_flag == P3D_TRUE) free(blob_im);
     if (dt_im != NULL) free(dt_im);
     if (lbl_im != NULL) free(lbl_im);
     if (volumes != NULL) free(volumes);

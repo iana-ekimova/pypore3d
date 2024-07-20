@@ -109,7 +109,7 @@ def py_p3dAnisotropyAnalysis(image_data, dimx, dimy, dimz = 0, resolution = 1.0)
 	return out_AnisotropyStats
 
 #Blob labeling
-def py_p3dBlobLabeling(image_data, dimx, dimy, dimz = 0, label_image_file =None, conn3D = CONN6 ):
+def py_p3dBlobLabeling(image_data, dimx, dimy, dimz = 0, conn3D = CONN6 ):
 	"""
  
   Performs connected components (blobs) labeling using the algorithm proposed in [1].
@@ -151,10 +151,10 @@ def py_p3dBlobLabeling(image_data, dimx, dimy, dimz = 0, label_image_file =None,
 		py_printErrorMessage(-3)
 		return
 
-	out_image = malloc_uint(dimx*dimy*dimz)
+	out_image = malloc_ushort(dimx*dimy*dimz)
 	skip_borders = 1
 	rand = 0
-	err_code = p3dBlobLabeling_uint(image_data, out_image, label_image_file, dimx,dimy,dimz,conn3D, rand , skip_borders, None)
+	err_code = p3dBlobLabeling_ushort(image_data, out_image, dimx,dimy,dimz,conn3D, rand , skip_borders, None)
 	py_printErrorMessage(err_code)
 	return out_image
 
@@ -181,8 +181,6 @@ def py_p3dGetMaxVolumeBlob3D(image_data, dimx, dimy, dimz = 0, conn3D = CONN6):
 
  dimx,dimy,dimz: three variables representing the dimensions of image to read. 
 
- label_image_file: the name of the file which will store a 32-bit raw image represnting the labeled blobs. If no file name is provided, the image will not be saved.  
- 
  conn3D: The desired connectivity, i.e. 6, 18 or 26 for 3D images. The default connectivity is 6 for three dimensional images.
 
 	"""
@@ -442,7 +440,7 @@ def py_p3dMinVolumeFilter3D(image_data, dimx, dimy, dimz = 0, min_vol = 5, conn 
 
 
 # Blob Analysis
-def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0, resolution = 1.0, conn = 6, blob_analysis_file = "blob_analysis.txt", isSavedBlob=0):
+def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0, blob_im = None, star_im = None, resolution = 1.0, conn = 6, blob_analysis_file = "blob_analysis.txt"):
 	"""
   Performs a series of direct 3D analysis suitable for porous media having isolated pores. If the pore space is formed by an  isolated set of “blobs” (connected components), a series of descriptors for size and shape of each “blob” can be computed. The  analysis is based on the concept of connected com- ponents and their labeling (see py_p3dBlobLabeling_8).
   
@@ -487,10 +485,6 @@ def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0, resolution = 1.0, conn 
   conn: Specify the desired connectivity: 6 (default), 18 or 26.
   
   blob_analysis_file: tab-delimeted file where the results of the blob statiscs are saved. If no name is specified, the file will be saved under the name "blob_analysis.txt" in the default folder location. 
-
-  isSavedBlob: if the flag is set to 0, no image files are saved. If it is set to any value greater than 0, two files will be saved:
-  label_img_32.raw: a 32-bit raw file representing the labels of the blobs
-  eq_circle_img.raw: an 8-bit raw file represnting the eq-circle of every detected blob
  
   Remarks:
   ---------
@@ -517,7 +511,7 @@ def py_p3dBlobAnalysis(image_data, dimx, dimy, dimz = 0, resolution = 1.0, conn 
 		borders = P3D_FALSE;
 	else :
 		borders = P3D_TRUE;
-	err_code = p3dBlobAnalysis(image_data, out_BlobStat,  None, None, dimx,dimy,dimz,resolution,conn,max_rot,borders,isSavedBlob, None)
+	err_code = p3dBlobAnalysis(image_data, out_BlobStat, blob_im, star_im, dimx,dimy,dimz,resolution,conn,max_rot,borders, None)
 	py_printErrorMessage(err_code)
 	PrintBlobStruct(out_BlobStat, blob_analysis_file)
 	return out_BlobStat

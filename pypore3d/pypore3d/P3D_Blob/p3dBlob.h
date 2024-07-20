@@ -9,8 +9,8 @@ extern "C" {
 #ifndef P3D_BLOB_DEFINED
 #define P3D_BLOB_DEFINED
 
-#define P3D_FALSE				-1
-#define P3D_TRUE				1
+#define P3D_FALSE				-1 
+#define P3D_TRUE				1 
 
 #define P3D_ERROR				0
 #define P3D_MEM_ERROR			NULL	/* Leave it NULL to simplify tests */
@@ -36,7 +36,7 @@ extern "C" {
 #ifndef P3D_BLOB_MACROS
 #define P3D_BLOB_MACROS
 
-	#define I(i,j,k,N,M)    ( (j)*(N) + (i) + (k)*(N)*(M) )
+	#define I(i,j,k,N,M)    ( (j)*(N) + (i) + (k)*(N)*(M) ) 
 	#define MIN(x,y)        (((x) < (y))?(x):(y))
 	#define MAX(x,y)        (((x) > (y))?(x):(y))
 
@@ -60,9 +60,6 @@ extern "C" {
         double* sphericity;
         double* extent;
         double* volume;
-        double* Centroid_x;
-        double* Centroid_y;
-        double* Centroid_z;
     } BlobStats;
 
     typedef struct {
@@ -94,7 +91,7 @@ extern "C" {
     int p3dBlobAnalysis(
             unsigned char* in_im,
             BlobStats* out_stats,
-	    unsigned char* blob_im, // OUT: Balls image
+            unsigned char* blob_im, // OUT: Balls image
             unsigned char* star_im, // OUT: Balls image
             const int dimx,
             const int dimy,
@@ -103,7 +100,6 @@ extern "C" {
             const int conn,
             const int max_rot,
             const int skip_borders,
-            const int isSaveBlobs,
             int (*wr_log)(const char*, ...)
             );
 
@@ -158,7 +154,7 @@ extern "C" {
             const int dimy,
             const int dimz,
             const int stepsize, // IN: stepsize for porosity
-            const int centerx, // IN: X coordinate for the center of REV (-1 for
+            const int centerx, // IN: X coordinate for the center of REV (-1 for 
             //     automatic determination of the center)
             const int centery, // IN: Y coordinate for the center of REV
             const int centerz, // IN: Z coordinate for the center of REV
@@ -180,7 +176,6 @@ extern "C" {
     int p3dBlobLabeling_ushort(
             unsigned char* in_im,
             unsigned short* out_im,
-            char* filename,
             const int dimx,
             const int dimy,
             const int dimz,
@@ -189,11 +184,10 @@ extern "C" {
             const int skip_borders,
             int (*wr_log)(const char*, ...)
             );
-
+    
      int p3dBlobLabeling_uint(
             unsigned char* in_im,
             unsigned int* out_im,
-            char* filename,
             const int dimx,
             const int dimy,
             const int dimz,
