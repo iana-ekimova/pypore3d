@@ -67,6 +67,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <omp.h>
+#include <string.h>
 
 #include "p3dCoordsQueue.h"
 #include "p3dUIntList.h"
