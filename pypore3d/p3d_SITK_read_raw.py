@@ -146,7 +146,7 @@ def Read_Raw16(binary_file_name, image_size, image_spacing=None,image_origin=Non
 
 ######
 
-def Read_Raw(binary_file_name, image_size, sitk_pixel_type = sitk.sitkUInt8):
+def Read_Raw(binary_file_name, image_size, sitk_pixel_type = sitk.sitkUInt8, image_spacing=None):
     pixel_dict = {sitk.sitkUInt8: 'MET_UCHAR',
                   sitk.sitkInt8: 'MET_CHAR',
                   sitk.sitkUInt16: 'MET_USHORT',
@@ -157,8 +157,7 @@ def Read_Raw(binary_file_name, image_size, sitk_pixel_type = sitk.sitkUInt8):
                   sitk.sitkInt64: 'MET_LONG_LONG',
                   sitk.sitkFloat32: 'MET_FLOAT',
                   sitk.sitkFloat64: 'MET_DOUBLE'}
-    
-    image_spacing=None
+
     image_origin=None
     big_endian=False
     direction_cosine = ['1 0 0 1', '1 0 0 0 1 0 0 0 1','1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1']
